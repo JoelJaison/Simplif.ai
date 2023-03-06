@@ -2,7 +2,8 @@ import interact from "interactjs";
 import menu from "../../assets/menu.png";
 import "./Canvas.css";
 import Offcanvas from "react-bootstrap/Offcanvas";
-import Block from"./Block.js";
+import Block from "./Block.js";
+import { Draggable } from "drag-react";
 import React, { useState } from "react";
 
 const Canvas = (props) => {
@@ -16,15 +17,12 @@ const Canvas = (props) => {
   function drop(ev) {
     ev.preventDefault();
     if (dragState !== {}) {
-      let newBlock = <Block dragState={dragState} y={ev.pageY} x={ev.pageX} />
-      setDragState({})
+      let newBlock = <Block dragState={dragState} y={ev.pageY} x={ev.pageX} />;
+      setDragState({});
       setComponents((prev) => {
-        return [
-          ...prev,
-          newBlock
-        ];
+        return [...prev, newBlock];
       });
-    } 
+    }
   }
   return (
     <>
@@ -35,7 +33,9 @@ const Canvas = (props) => {
           <h1>Main canvas</h1>
         </div>
         <div onDragOver={allowDrop} onDrop={drop} className="components">
-          {components.map((component) => component)}
+          {components.map((component) => {
+            return <Draggable>{component}</Draggable>;
+          })}
         </div>
       </div>
     </>
@@ -54,12 +54,12 @@ const ComponentBar = ({ show, setShow, setDragState }) => {
     },
     {
       name: "Input Layer",
-      color: "lightblue"
+      color: "lightblue",
     },
     {
       name: "Output Layer",
-      color: "green"
-    }
+      color: "green",
+    },
   ];
 
   return (
