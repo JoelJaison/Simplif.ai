@@ -34,7 +34,7 @@ const Canvas = (props) => {
         </div>
         <div onDragOver={allowDrop} onDrop={drop} className="components">
           {components.map((component) => {
-            return <Draggable>{component}</Draggable>;
+            return <Draggable style={{zIndex: 0}}>{component}</Draggable>;
           })}
         </div>
       </div>
