@@ -1,26 +1,65 @@
-import interact from "interactjs";
 import menu from "../../assets/menu.png";
 import "./Canvas.css";
 import Offcanvas from "react-bootstrap/Offcanvas";
-import Block from "./Block.js";
-import { Draggable } from "drag-react";
-import React, { useState } from "react";
+import Button from "react-bootstrap/Button";
+import React, { useState, useRef } from "react";
+import "../index.css";
+import { ArcherContainer, ArcherElement } from "react-archer";
+import Draggable from "react-draggable";
 
 const Canvas = (props) => {
   const [show, setShow] = useState(false);
+  const [blockCount, setBlockCount] = useState(0);
   const [components, setComponents] = useState([]);
   const [dragState, setDragState] = useState({});
+  const [disabled, setDisabled] = useState(false);
+  const [selected, setSelected] = useState(false);
+  const [relations, setRelations] = useState({});
+  const archerContainer = useRef(null);
   function allowDrop(ev) {
     ev.preventDefault();
   }
 
+  const handleDragEnd = () => {
+    archerContainer.current.refreshScreen();
+  };
+
+  const clickHandler = (id) => {
+    return (e) => {
+      console.log("working");
+      if (disabled) {
+        if (!selected) {
+          setSelected(id);
+        } else {
+          let newRelations = { ...relations };
+          newRelations[selected] = {
+            targetId: id,
+            targetAnchor: "left",
+            sourceAnchor: "right",
+          };
+          setRelations(newRelations);
+          setDisabled(false)
+          setSelected(false);
+        }
+      }
+    };
+  };
   function drop(ev) {
     ev.preventDefault();
     if (dragState !== {}) {
-      let newBlock = <Block dragState={dragState} y={ev.pageY} x={ev.pageX} />;
+      let newState = {
+        dragState: { ...dragState },
+        y: ev.pageY,
+        x: ev.pageX,
+        id: String(blockCount),
+      };
+      let newRelations = {...relations};
+      newRelations[blockCount] = {};
+      setRelations(newRelations);
       setDragState({});
+      setBlockCount((blockCount) => blockCount + 1);
       setComponents((prev) => {
-        return [...prev, newBlock];
+        return [...prev, newState];
       });
     }
   }
@@ -31,11 +70,45 @@ const Canvas = (props) => {
         <div className="canvas-header">
           <img src={menu} className="menu" onClick={() => setShow(true)} />
           <h1>Main canvas</h1>
+          <Button variant="primary" onClick={() => setDisabled((val) => !val)}>
+            Connect
+          </Button>
         </div>
-        <div onDragOver={allowDrop} onDrop={drop} className="components">
-          {components.map((component) => {
-            return <Draggable style={{zIndex: 0}}>{component}</Draggable>;
-          })}
+        <div onDragOver={allowDrop} onDrop={drop} className="app">
+          <ArcherContainer
+            ref={archerContainer}
+            className="container"
+            strokeColor="#4cd895"
+            offset={4}
+            // svgContainerStyle={{ zIndex: -1 }}
+          >
+            {components.map((component) => {
+              console.log(relations[component.id]);
+              return (
+                <Draggable handle=".element" onStop={handleDragEnd} disabled={disabled}>
+                  <div className="drag-wrapper">
+                    <ArcherElement
+                      id={component.id}
+                      relations={[relations[component.id]]}
+                    >
+                      <div
+                        className="element"
+                        style={{
+                          backgroundColor: component.dragState.color,
+                          position: "absolute",
+                          left: component.x,
+                          top: component.y,
+                        }}
+                        onClick={clickHandler(component.id)}
+                      >
+                        {component.dragState.name}
+                      </div>
+                    </ArcherElement>
+                  </div>
+                </Draggable>
+              );
+            })}
+          </ArcherContainer>
         </div>
       </div>
     </>

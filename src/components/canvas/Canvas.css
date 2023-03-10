@@ -25,13 +25,14 @@
 .canvas-header {
 	width: 100%;
 	display: flex;
+	justify-content: space-around;
 }
 
-.canvas-header h1 {
+/* .canvas-header h1 {
 	margin-left: 40%;
-	/* margin-right: 50%; */
+	margin-right: 50%;
 }
 
 .canvas-header img {
 	margin-left: 8%;
-}
+} */
