@@ -6,6 +6,7 @@ import React, { useState, useRef } from "react";
 import "../index.css";
 import { ArcherContainer, ArcherElement } from "react-archer";
 import Draggable from "react-draggable";
+import LayerConfig from "./LayerConfig";
 
 const Canvas = (props) => {
   const [show, setShow] = useState(false);
@@ -15,6 +16,8 @@ const Canvas = (props) => {
   const [disabled, setDisabled] = useState(false);
   const [selected, setSelected] = useState(false);
   const [relations, setRelations] = useState({});
+  const [showModal, setShowModal] = useState(false);
+  const [currName, setCurrName] = useState("");
   const archerContainer = useRef(null);
   function allowDrop(ev) {
     ev.preventDefault();
@@ -26,7 +29,6 @@ const Canvas = (props) => {
 
   const clickHandler = (id) => {
     return (e) => {
-      console.log("working");
       if (disabled) {
         if (!selected) {
           setSelected(id);
@@ -47,6 +49,8 @@ const Canvas = (props) => {
   function drop(ev) {
     ev.preventDefault();
     if (dragState !== {}) {
+      setCurrName(dragState.name)
+      setShowModal(true);
       let newState = {
         dragState: { ...dragState },
         y: ev.pageY,
@@ -63,9 +67,11 @@ const Canvas = (props) => {
       });
     }
   }
+
   return (
     <>
       <ComponentBar show={show} setShow={setShow} setDragState={setDragState} />
+      <LayerConfig show={showModal} setShow={setShowModal} name={currName} />
       <div className="canvas-wrapper">
         <div className="canvas-header">
           <img src={menu} className="menu" onClick={() => setShow(true)} />
@@ -83,7 +89,6 @@ const Canvas = (props) => {
             // svgContainerStyle={{ zIndex: -1 }}
           >
             {components.map((component) => {
-              console.log(relations[component.id]);
               return (
                 <Draggable handle=".element" onStop={handleDragEnd} disabled={disabled}>
                   <div className="drag-wrapper">
