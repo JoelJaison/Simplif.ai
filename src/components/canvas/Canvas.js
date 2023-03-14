@@ -18,6 +18,8 @@ const Canvas = (props) => {
   const [relations, setRelations] = useState({});
   const [showModal, setShowModal] = useState(false);
   const [currName, setCurrName] = useState("");
+  const [layerInfo, setLayerInfo] = useState({});
+  const [currId, setCurrId] = useState(-1);
   const archerContainer = useRef(null);
   function allowDrop(ev) {
     ev.preventDefault();
@@ -29,6 +31,7 @@ const Canvas = (props) => {
 
   const clickHandler = (id) => {
     return (e) => {
+      console.log(selected);
       if (disabled) {
         if (!selected) {
           setSelected(id);
@@ -46,19 +49,25 @@ const Canvas = (props) => {
       }
     };
   };
+
+  const sendData = () => {
+    console.log(layerInfo);
+  }
   function drop(ev) {
     ev.preventDefault();
     if (dragState !== {}) {
       setCurrName(dragState.name)
+      let id = String(blockCount);
+      setCurrId(id);
       setShowModal(true);
       let newState = {
         dragState: { ...dragState },
         y: ev.pageY,
         x: ev.pageX,
-        id: String(blockCount),
+        id: id,
       };
       let newRelations = {...relations};
-      newRelations[blockCount] = {};
+      newRelations[String(blockCount)] = {};
       setRelations(newRelations);
       setDragState({});
       setBlockCount((blockCount) => blockCount + 1);
@@ -71,13 +80,16 @@ const Canvas = (props) => {
   return (
     <>
       <ComponentBar show={show} setShow={setShow} setDragState={setDragState} />
-      <LayerConfig show={showModal} setShow={setShowModal} name={currName} />
+      <LayerConfig show={showModal} setShow={setShowModal} name={currName} setLayerInfo={setLayerInfo} id={currId} />
       <div className="canvas-wrapper">
         <div className="canvas-header">
           <img src={menu} className="menu" onClick={() => setShow(true)} />
           <h1>Main canvas</h1>
           <Button variant="primary" onClick={() => setDisabled((val) => !val)}>
             Connect
+          </Button>
+          <Button variant="primary" onClick={sendData}>
+            Train
           </Button>
         </div>
         <div onDragOver={allowDrop} onDrop={drop} className="app">
@@ -138,6 +150,10 @@ const ComponentBar = ({ show, setShow, setDragState }) => {
       name: "Output Layer",
       color: "green",
     },
+    {
+      name: "Sigmoid",
+      color: "cyan"
+    }
   ];
 
   return (

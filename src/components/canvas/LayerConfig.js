@@ -3,12 +3,36 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
 
-export default function LayerConfig({ show, setShow, name }) {
+export default function LayerConfig({ show, setShow, name, setLayerInfo, id}) {
   const [file, setFile] = useState(null);
+  const [dimIn, setDimIn] = useState(0);
+  const [dimOut, setDimOut] = useState(0);
+  const [label, setLabel] = useState("");
+  const setFCInfo = (e) => {
+    setLayerInfo(prev => {
+      let tmp = {...prev}
+      tmp[id] = {
+        name: name,
+        dimIn: dimIn,
+        dimOut: dimOut,
+      }
+      return tmp;
+    })
+  }
+  const setInputInfo = e => {
+    setLayerInfo(prev => {
+      let tmp = {...prev}
+      tmp[id] = {
+        name: name,
+        label: label
+      }
+      return tmp;
+    })
+  } 
   const handleClose = () => setShow(false);
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(e.target)
+    setInputInfo();
     if (file != null) {
       const data = new FormData();
       data.append("file", file);
@@ -25,12 +49,18 @@ export default function LayerConfig({ show, setShow, name }) {
           <>
             <Form.Group className="mb-3">
               <Form.Label>Input Size</Form.Label>
-              <Form.Control type="input" placeholder="Enter Size" />
+              <Form.Control type="input" placeholder="Enter Size" onChange={e => setDimIn(e.target.value)} />
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Output Size</Form.Label>
-              <Form.Control type="input" placeholder="Enter Size" />
+              <Form.Control type="input" placeholder="Enter Size" onChange={e => setDimOut(e.target.value)} />
             </Form.Group>
+            <Button variant="primary" onClick={setFCInfo}>
+              Save Changes
+            </Button>
+            <Button variant="primary" onClick={handleClose}>
+              Close
+            </Button>
           </>
         );
       case "Input Layer":
@@ -42,9 +72,9 @@ export default function LayerConfig({ show, setShow, name }) {
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Label Column Name</Form.Label>
-              <Form.Control type="input" placeholder="Enter Label" />
+              <Form.Control type="input" placeholder="Enter Label" onChange={e => setLabel(e.target.value)} />
             </Form.Group>
-            <Button variant="primary" type="submit">
+            <Button variant="primary" type="submit" onClick={handleClose}>
               Upload Data
             </Button>
           </>
@@ -58,9 +88,6 @@ export default function LayerConfig({ show, setShow, name }) {
           <Form onSubmit={handleSubmit}>{getFormContents(name)}</Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" onClick={handleClose}>
-            Save Changes
-          </Button>
         </Modal.Footer>
       </Modal>
     </>
